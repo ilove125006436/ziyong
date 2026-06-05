@@ -1,0 +1,42 @@
+cat > .github/workflows/build.yml << 'EOF'
+name: Build MT798x OpenWrt
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib \
+          gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev \
+          libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache
+
+      - name: Update feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Load config
+        run: |
+          make defconfig
+
+      - name: Download dl
+        run: |
+          make download -j$(nproc)
+
+      - name: Compile
+        run: |
+          make -j$(nproc) V=s
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-firmware
+          path: bin/targets/
+EOF
