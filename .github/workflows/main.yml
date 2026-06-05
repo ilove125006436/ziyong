@@ -1,0 +1,47 @@
+name: Build MT798x OpenWrt
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Config
+        uses: actions/checkout@v4
+
+      - name: Install Build Depends
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache
+
+      - name: Clone Source Code
+        run: |
+          git clone -b mt798x-mt799x-6.6-mtwifi --single-branch https://github.com/ilove125006436/ziyong.git openwrt
+          cp .config openwrt/.config
+
+      - name: Feed Update & Install
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Defconfig Adapt
+        run: |
+          cd openwrt
+          make defconfig
+
+      - name: Pre-download All Source
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+
+      - name: Compile Firmware
+        run: |
+          cd openwrt
+          make -j$(nproc) V=s
+
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: MT798x-Firmware
+          path: openwrt/bin/targets/
