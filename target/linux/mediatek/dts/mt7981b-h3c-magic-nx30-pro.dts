@@ -142,74 +142,7 @@
 
 			partition@580000 {
 				label = "ubi";
-				reg = <0x0580000 0x4000000>;
-				compatible = "linux,ubi";
-
-				volumes {
-					ubi_rootdisk: ubi-volume-fit {
-						volname = "fit";
-					};
-				};
-			};
-
-			/* yaffs partition */
-			partition@4580000 {
-				label = "pdt_data";
-				reg = <0x4580000 0x0600000>;
-				read-only;
-			};
-
-			/* yaffs partition */
-			partition@4b80000 {
-				label = "pdt_data_1";
-				reg = <0x4b80000 0x0600000>;
-				read-only;
-			};
-
-			partition@5180000 {
-				label = "exp";
-				reg = <0x5180000 0x0100000>;
-				read-only;
-			};
-
-			partition@5280000 {
-				label = "plugin";
-				reg = <0x5280000 0x2580000>;
-				read-only;
-			};
-		};
-	};
-};
-
-&switch {
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		port@0 {
-			reg = <0>;
-			label = "lan1";
-		};
-
-		port@1 {
-			reg = <1>;
-			label = "lan2";
-		};
-
-		port@2 {
-			reg = <2>;
-			label = "lan3";
-		};
-
-		port@6 {
-			reg = <6>;
-			ethernet = <&gmac0>;
-			phy-mode = "2500base-x";
-
-			fixed-link {
-				speed = <2500>;
-				full-duplex;
-				pause;
+				reg = <0x580000 0x7000000>;
 			};
 		};
 	};
