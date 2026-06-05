@@ -6,50 +6,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1.拉取当前仓库（读取根目录你的.config配置文件）
-      - name: Checkout Repo Config
+      # 拉取当前仓库(读取根目录你的.config)
+      - name: Checkout config file
         uses: actions/checkout@v4
 
-      # 2.安装编译全依赖
-      - name: Install Build Dependencies
+      # 安装全套编译依赖
+      - name: Install compile libs
         run: |
-          sudo apt update -qq
-          sudo apt install -y build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib gperf wget curl rsync ccache
+          sudo apt update
+          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib \
+          gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev \
+          libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache
 
-      # 3.克隆指定分支源码
-      - name: Clone Target Source Code
+      # 拉取指定分支源码
+      - name: Clone MT798x source
         run: |
           git clone -b mt798x-mt799x-6.6-mtwifi --single-branch https://github.com/ilove125006436/ziyong.git openwrt
-          # 把仓库根目录的.config丢进源码目录
           cp .config openwrt/.config
 
-      # 4.更新安装feeds
-      - name: Feeds Update & Install
+      # feeds更新安装
+      - name: Update feeds
         run: |
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 5.适配配置
-      - name: Defconfig Adapt
+      # 适配配置
+      - name: Make defconfig
         run: |
           cd openwrt
           make defconfig
 
-      # 6.预下载全部源码包
-      - name: Pre Download Source
+      # 预下载源码包
+      - name: Download source code
         run: |
           cd openwrt
           make download -j$(nproc)
 
-      # 7.编译固件
-      - name: Build Firmware
+      # 编译固件
+      - name: Build firmware bin
         run: |
           cd openwrt
           make -j$(nproc) V=s
 
-      # 8.上传成品固件
-      - name: Upload Artifact
+      # 上传固件到下载项
+      - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
           name: MT798x-Firmware
