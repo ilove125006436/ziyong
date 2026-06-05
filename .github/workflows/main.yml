@@ -1,3 +1,6 @@
+cd openwrt
+mkdir -p .github/workflows
+
 cat > .github/workflows/build.yml << 'EOF'
 name: Build MT798x OpenWrt
 on:
@@ -10,8 +13,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 拉取你要的源码 + 指定分支
+      - name: Clone source code
+        run: |
+          git clone -b mt798x-mt799x-6.6-mtwifi --single-branch https://github.com/ilove125006436/ziyong.git openwrt
+          cd openwrt
+          mv ../.config ./.config
+
       - name: Install dependencies
         run: |
+          cd openwrt
           sudo apt update
           sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib \
           gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev \
@@ -19,24 +30,28 @@ jobs:
 
       - name: Update feeds
         run: |
+          cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Load config
+      - name: Defconfig
         run: |
+          cd openwrt
           make defconfig
 
-      - name: Download dl
+      - name: Download sources
         run: |
+          cd openwrt
           make download -j$(nproc)
 
-      - name: Compile
+      - name: Compile firmware
         run: |
+          cd openwrt
           make -j$(nproc) V=s
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-firmware
-          path: bin/targets/
+          name: openwrt-mt798x-firmware
+          path: openwrt/bin/targets/
 EOF
