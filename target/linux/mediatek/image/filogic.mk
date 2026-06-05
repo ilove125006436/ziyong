@@ -1004,7 +1004,7 @@ define Device/h3c_magic-nx30-pro
   PAGESIZE := 2048
   KERNEL_IN_UBI := 1
   UBOOTENV_IN_UBI := 1
-  IMAGE_SIZE := 65536k
+  IMAGE_SIZE := 110592k
   IMAGES := sysupgrade.itb
   KERNEL_INITRAMFS_SUFFIX := -recovery.itb
   KERNEL := kernel-bin | gzip
