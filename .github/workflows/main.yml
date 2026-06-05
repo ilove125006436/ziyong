@@ -6,51 +6,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 拉取当前仓库(读取根目录你的.config)
-      - name: Checkout config file
+      - name: Checkout Config
         uses: actions/checkout@v4
 
-      # 安装全套编译依赖
-      - name: Install compile libs
+      - name: Install Build Depends
         run: |
           sudo apt update
-          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib \
-          gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev \
-          libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache
+          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache
 
-      # 拉取指定分支源码
-      - name: Clone MT798x source
+      - name: Clone Source Code
         run: |
           git clone -b mt798x-mt799x-6.6-mtwifi --single-branch https://github.com/ilove125006436/ziyong.git openwrt
           cp .config openwrt/.config
 
-      # feeds更新安装
-      - name: Update feeds
+      - name: Feed Update & Install
         run: |
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 适配配置
-      - name: Make defconfig
+      - name: Defconfig Adapt
         run: |
           cd openwrt
           make defconfig
 
-      # 预下载源码包
-      - name: Download source code
+      - name: Pre-download All Source
         run: |
           cd openwrt
           make download -j$(nproc)
 
-      # 编译固件
-      - name: Build firmware bin
+      - name: Compile Firmware
         run: |
           cd openwrt
           make -j$(nproc) V=s
 
-      # 上传固件到下载项
-      - name: Upload firmware artifact
+      - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: MT798x-Firmware
