@@ -9,10 +9,13 @@ jobs:
       - name: Checkout Config
         uses: actions/checkout@v5
 
+      # ====================
+      # 修复 1：装全依赖
+      # ====================
       - name: Install Build Depends
         run: |
           sudo apt update
-          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib gettext libncurses5-dev python3-distutils texinfo unzip zlib1g-dev libssl-dev libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache
+          sudo apt install -y build-essential clang flex bison gawk gcc-multilib g++-multilib gettext libncurses5-dev python3-distutils python3-setuptools texinfo unzip zlib1g-dev libssl-dev libelf-dev autoconf automake libtool autopoint device-tree-compiler ccache swig
 
       - name: Clone Source Code
         run: |
@@ -35,10 +38,13 @@ jobs:
           cd openwrt
           make download -j$(nproc)
 
+      # ====================
+      # 修复 2：使用 -j1 单线程编译，避免 Actions 崩溃
+      # ====================
       - name: Compile Firmware
         run: |
           cd openwrt
-          make -j$(nproc) V=s
+          make V=s -j1
 
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
